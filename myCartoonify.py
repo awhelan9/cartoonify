@@ -9,6 +9,7 @@ def cartoonify(image, howChunky, blurNum):
     count = 0.0
     total = height * width
     image = cv2.blur(image, (blurNum, blurNum))
+    cv2.imwrite("monaLisaBLUR.png", image)
 
     print image.shape
 
@@ -37,9 +38,21 @@ def cartoonify(image, howChunky, blurNum):
 
             image[i, j] = r, g, b
 
+    cv2.imwrite("monaLisaCARTOON.png", image)
+    edgeImg = cv2.Canny(image, 100, 200)
+    cv2.imwrite("monaLisaEDGES.png", edgeImg)
+    edgeImg = cv2.imread("monaLisaEDGES.png", cv2.IMREAD_COLOR)
 
-    cv2.imwrite("colorsOut.png", image)
+    for i in range(height):
+        for j in range(width):
+            pixel = edgeImg[i,j]
+            r,g,b = pixel
+            if r == 255 and g == 255 and b == 255:
+                image[i,j] = 0,0,0
 
 
-testImage = cv2.imread("kite.png", cv2.IMREAD_COLOR)
+    cv2.imwrite("monaLisaOUT.png", image)
+
+
+testImage = cv2.imread("monaLisaIN.png", cv2.IMREAD_COLOR)
 cartoonify(testImage, 4, 5)
