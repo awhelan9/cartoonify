@@ -16,7 +16,7 @@ def cartoonify(image, howChunky, blurNum, filename):
     for i in range(height):
         for j in range(width):
 
-            print count/total, " percent done"
+            print int((count/total)*100), " percent done"
             count += 1
 
             pixel = image[i, j]
@@ -51,12 +51,59 @@ def cartoonify(image, howChunky, blurNum, filename):
                 image[i,j] = 0,0,0
 
 
-    cv2.imwrite((filename + "OUT.png"), image)
+    shapeMasks = findMasks(image, howChunky, filename)
+    dots = cv2.imread("dots.png", cv2.IMREAD_COLOR)
+    lines = cv2.imread("lines.png", cv2.IMREAD_COLOR)
+    noise = cv2.imread("noise.png", cv2.IMREAD_COLOR)
+    patterns = [dots, lines, noise]
+    choice = 0
+
+    for y in range(0, len(shapeMasks)):
+        mask = shapeMasks[y]
+        pattern = patterns[choice]
+        choice += 1
+        if choice == 3:
+            choice = 0
+
+        pHgt, pWdt, pChan = pattern.shape
+        pI = 0
+        pJ = 0
 
 
-def findMasks(image, num):
+        for i in range(height):
+            for j in range(width):
+                if mask[i, j] > 200 and pattern[pI, pJ][0] < 50:
+                    a, b, c  = image[i, j]
+                    d, e, f = pattern[pI, pJ]
+
+                    print "pattern pixel:", pattern[pI, pJ]
+
+                    rFinal = ((a * .85) + (d * .15)) / 2
+                    gFinal = ((b * .85) + (e * .15)) / 2
+                    bFinal = ((c * .85) + (f * .15)) / 2
+                    image[i, j] = rFinal, gFinal, bFinal
+
+
+                if pJ >= pWdt - 1:
+                    pJ = 0
+                else:
+                    pJ += 1
+
+            if pI >= pHgt - 1:
+                pI = 0
+            else:
+                pI += 1
+
+
+
+
+    cv2.imwrite((filename + "OUT2.png"), image)
+
+
+def findMasks(image, num, filename):
     count = 0
     inc = 256/num
+    masks = []
 
     for x in range(num):
         for y in range(num):
@@ -66,13 +113,17 @@ def findMasks(image, num):
                 lower = np.array([B, G, R])
                 upper = np.array([B2, G2, R2])
                 shapeMask = cv2.inRange(image, lower, upper)
-                cv2.imwrite("masks/" + (str(count) + "Mask.png"), shapeMask)
+                if (np.any(shapeMask[:, 0] == 255)) and ((B, G, R) != (0, 0, 0)):
+                    cv2.imwrite(filename + "/masks/" + (str(count) + "Mask.png"), shapeMask)
+                    masks += [shapeMask]
                 count += 1
 
-
-testImage = cv2.imread("kiteOUT.png", cv2.IMREAD_COLOR)
-findMasks(testImage, 4)
+    return masks
 
 
 # testImage = cv2.imread("kite.png", cv2.IMREAD_COLOR)
-# cartoonify(testImage, 4, 5, "kite")
+# findMasks(testImage, 4, "kite")
+
+
+testImage = cv2.imread("kittens.png", cv2.IMREAD_COLOR)
+cartoonify(testImage, 4, 5, "kittens/kit")
