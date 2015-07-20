@@ -8,8 +8,9 @@ def cartoonify(image, howChunky, blurNum, filename):
     increment = 256/howChunky
     count = 0.0
     total = height * width
-    image = cv2.blur(image, (blurNum, blurNum))
+
     cv2.imwrite((filename + "BLUR.png"), image)
+
 
     print image.shape
 
@@ -38,10 +39,12 @@ def cartoonify(image, howChunky, blurNum, filename):
 
             image[i, j] = r, g, b
 
+
     cv2.imwrite((filename + "CARTOON.png"), image)
     edgeImg = cv2.Canny(image, 100, 200)
     cv2.imwrite((filename + "EDGES.png"), edgeImg)
     edgeImg = cv2.imread((filename + "EDGES.png"), cv2.IMREAD_COLOR)
+
 
     for i in range(height):
         for j in range(width):
