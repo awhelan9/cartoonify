@@ -56,9 +56,9 @@ def cartoonify(image, howChunky, blurNum, filename):
 
 
     shapeMasks = findMasks(image, howChunky, filename.split("/")[0] + "/")
-    dots = cv2.imread("dots.png", cv2.IMREAD_COLOR)
-    lines = cv2.imread("lines.png", cv2.IMREAD_COLOR)
-    noise = cv2.imread("noise.png", cv2.IMREAD_COLOR)
+    dots = cv2.imread("patterns/dots.png", cv2.IMREAD_COLOR)
+    lines = cv2.imread("patterns/lines.png", cv2.IMREAD_COLOR)
+    noise = cv2.imread("patterns/noise.png", cv2.IMREAD_COLOR)
     patterns = [dots, lines, noise]
     choice = 0
 
