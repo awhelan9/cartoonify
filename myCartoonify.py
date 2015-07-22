@@ -9,6 +9,7 @@ def cartoonify(image, howChunky, blurNum, filename):
     count = 0.0
     total = height * width
 
+    image = cv2.blur(image, (blurNum, blurNum))
     cv2.imwrite((filename + "BLUR.png"), image)
 
 
@@ -17,7 +18,7 @@ def cartoonify(image, howChunky, blurNum, filename):
     for i in range(height):
         for j in range(width):
 
-            print int((count/total)*100), " percent done"
+            print "color simplification is ", int((count/total)*100), " percent done"
             count += 1
 
             pixel = image[i, j]
@@ -54,19 +55,23 @@ def cartoonify(image, howChunky, blurNum, filename):
                 image[i,j] = 0,0,0
 
 
-    shapeMasks = findMasks(image, howChunky, filename)
+    shapeMasks = findMasks(image, howChunky, filename.split("/")[0] + "/")
     dots = cv2.imread("dots.png", cv2.IMREAD_COLOR)
     lines = cv2.imread("lines.png", cv2.IMREAD_COLOR)
     noise = cv2.imread("noise.png", cv2.IMREAD_COLOR)
     patterns = [dots, lines, noise]
     choice = 0
 
+
+    count = 0.0
+    total = total * len(shapeMasks)
     for y in range(0, len(shapeMasks)):
         mask = shapeMasks[y]
         pattern = patterns[choice]
         choice += 1
         if choice == 3:
             choice = 0
+
 
         pHgt, pWdt, pChan = pattern.shape
         pI = 0
@@ -75,16 +80,19 @@ def cartoonify(image, howChunky, blurNum, filename):
 
         for i in range(height):
             for j in range(width):
-                if mask[i, j] > 200 and pattern[pI, pJ][0] < 50:
+                if mask[i, j] > 200 and pattern[pI, pJ][0] < 65:
                     a, b, c  = image[i, j]
                     d, e, f = pattern[pI, pJ]
-
-                    print "pattern pixel:", pattern[pI, pJ]
 
                     rFinal = ((a * .85) + (d * .15)) / 2
                     gFinal = ((b * .85) + (e * .15)) / 2
                     bFinal = ((c * .85) + (f * .15)) / 2
                     image[i, j] = rFinal, gFinal, bFinal
+
+                print "patterning is ", (count/total)*100, " percent done"
+                # print "count: ", count
+                # print "total: ", total
+                count += 1
 
 
                 if pJ >= pWdt - 1:
@@ -128,5 +136,5 @@ def findMasks(image, num, filename):
 # findMasks(testImage, 4, "kite")
 
 
-testImage = cv2.imread("kittens.png", cv2.IMREAD_COLOR)
-cartoonify(testImage, 4, 5, "kittens/kit")
+testImage = cv2.imread("alexa.png", cv2.IMREAD_COLOR)
+cartoonify(testImage, 4, 5, "alexa/alexa")
